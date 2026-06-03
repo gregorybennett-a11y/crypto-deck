@@ -5,9 +5,6 @@ import tempfile
 
 st.set_page_config(page_title="Crypto Prediction Dashboard", layout="wide")
 
-st.title("🪙 Crypto Prediction Dashboard")
-st.caption("Generating predictions for BTC & ETH — this takes about 30–60 seconds...")
-
 @st.cache_data(show_spinner="Running prediction model... please wait")
 def generate_dashboard():
     # Import from the existing script
@@ -51,6 +48,6 @@ def generate_dashboard():
 html_content = generate_dashboard()
 
 if html_content:
-    st.components.v1.html(html_content, height=1400, scrolling=True)
+    st.html(html_content)
 else:
     st.error("Dashboard could not be generated. Check the logs.")

@@ -651,7 +651,7 @@ def build_chart(
         autosize=True,
         hovermode="x unified",
         legend=dict(orientation="h", y=-0.28, x=0, font=dict(size=12), bgcolor="rgba(0,0,0,0)"),
-        margin=dict(l=80, r=40, t=60, b=150),
+        margin=dict(l=60, r=20, t=60, b=150),
         yaxis=dict(title="Price (USD)", tickprefix="$", tickformat=",.0f",
                    gridcolor="rgba(255,255,255,0.05)", range=y_range),
         xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", tickangle=-30),
@@ -1441,7 +1441,8 @@ def run_coin_scenario(
         fig = build_chart(df_sc, forecasts, coin_id, current_price, scenario, fng_df, horizon=hz)
         charts_html[hz] = fig.to_html(
             include_plotlyjs=False, full_html=False,
-            div_id=f"chart_{coin_id}_{scenario}_{hz}"
+            div_id=f"chart_{coin_id}_{scenario}_{hz}",
+            config={"responsive": True}
         )
 
     mood_html = build_mood_html(fng_df)

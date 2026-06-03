@@ -36,6 +36,35 @@ panels = load_all_data()
 # ── Header ────────────────────────────────────────────────────────────────────
 st.markdown("## 🪙 Crypto Prediction Dashboard")
 st.caption("BTC & ETH · 7d / 30d / 90d forecasts · Data: CoinGecko, Fear & Greed, News, Reddit")
+
+with st.expander("📖 How to Use This Dashboard"):
+    st.markdown("""
+**What is Cryptocurrency?**
+Digital money that exists only online — no bank or government controls it. **Bitcoin (BTC)** is the most well-known (like digital gold). **Ethereum (ETH)** is the second largest, powering many apps and digital contracts. Prices change constantly based on supply, demand, and public sentiment — just like stocks.
+
+**What Does This Dashboard Do?**
+It tracks the current price of Bitcoin and Ethereum and uses a mathematical model (Prophet) to predict where the price might go over the next 7, 30, or 90 days. Data sources:
+- **CoinGecko** — real-time and historical price data
+- **Fear & Greed Index** — measures how nervous or excited the market is (0 = extreme fear, 100 = extreme greed)
+- **News headlines** — scans crypto news sites for positive or negative coverage
+- **Reddit** — reads community sentiment from crypto forums
+
+**How to Read the Chart**
+- The **solid orange/blue line** is the real historical price.
+- The **dashed line** after "TODAY" is the model's best guess for the future price.
+- The **shaded band** is the uncertainty range — the price will likely land somewhere inside it. Wider = more uncertainty.
+- The **dotted white line** is the recent price average, showing the general trend.
+
+**The Three Selectors**
+- **Crypto** — switch between Bitcoin and Ethereum.
+- **Scenario** — ⚪ Base (honest best guess) · 🟢 Bullish (optimistic) · 🔴 Bearish (cautious).
+- **Horizon** — how far ahead to predict. 7 Days is most reliable; 90 Days is more speculative.
+
+**RSI** measures buying/selling speed. Below 30 = oversold (may bounce). Above 70 = overbought (may pull back).
+
+**MACD** shows momentum. Positive = buying momentum growing. Negative = selling momentum growing.
+    """)
+
 st.divider()
 
 # ── Controls ─────────────────────────────────────────────────────────────────

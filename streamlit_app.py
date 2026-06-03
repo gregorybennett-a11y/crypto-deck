@@ -138,39 +138,36 @@ if coin_id in panels and scenario in panels[coin_id]:
         )
 
         st.markdown("### ⚡ Momentum Indicators")
-        def pill(label, color):
-            # color: "green", "red", "gray"
-            bg  = {"green": "#16a34a22", "red": "#dc262622", "gray": "#47556922"}[color]
-            bdr = {"green": "#16a34a66", "red": "#dc262666", "gray": "#47556966"}[color]
-            clr = {"green": "#4ade80",   "red": "#f87171",   "gray": "#94a3b8"}[color]
+        def pill(label, color="gray"):
+            bg  = "#47556922"
+            bdr = "#47556966"
+            clr = "#94a3b8"
             return f'<span style="background:{bg};border:1px solid {bdr};color:{clr};border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap">{label}</span>'
 
         def score_color(score):
-            if score > 0.05:  return "green"
-            if score < -0.05: return "red"
             return "gray"
 
         m1, m2, m3 = st.columns(3)
         rsi = d['rsi']
-        rsi_color = "green" if rsi < 30 else "red" if rsi > 70 else "green" if rsi > 55 else "red" if rsi < 45 else "gray"
+        rsi_color = "gray"
         rsi_label = "Oversold — potential bounce" if rsi < 30 else "Overbought — potential pullback" if rsi > 70 else "Bullish neutral" if rsi > 55 else "Bearish neutral" if rsi < 45 else "Neutral"
         m1.metric("RSI", f"{rsi:.1f}")
         m1.markdown(pill(rsi_label, rsi_color), unsafe_allow_html=True)
 
-        macd_color = "green" if d['macd_bull'] else "red"
+        macd_color = "gray"
         macd_label = "▲ Bullish" if d['macd_bull'] else "▼ Bearish"
         m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}")
         m2.markdown(pill(macd_label, macd_color), unsafe_allow_html=True)
 
         vol = d['volatility_pct']
-        vol_color = "red" if vol > 80 else "gray" if vol > 40 else "green"
+        vol_color = "gray"
         vol_label = "High volatility" if vol > 80 else "Moderate" if vol > 40 else "Low volatility"
         m3.metric("14d Volatility", f"{vol:.1f}%")
         m3.markdown(pill(vol_label, vol_color), unsafe_allow_html=True)
 
         st.markdown("### 🌐 Sentiment")
         s1, s2, s3, s4 = st.columns(4)
-        fng_color = "green" if d['fng_val'] >= 60 else "red" if d['fng_val'] <= 40 else "gray"
+        fng_color = "gray"
         s1.metric("Fear & Greed", f"{d['fng_val']:.0f}")
         s1.markdown(pill(d['fng_cls'], fng_color), unsafe_allow_html=True)
         s2.metric("News", f"{d['news_score']:+.2f}")

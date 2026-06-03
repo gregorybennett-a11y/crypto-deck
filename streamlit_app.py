@@ -126,6 +126,6 @@ if coin_id in panels and scenario in panels[coin_id]:
     explanation = data.get("explanation_html", "")
     if explanation:
         st.markdown("---")
-        st.components.v1.html(explanation, height=400, scrolling=True)
+        st.markdown(explanation, unsafe_allow_html=True)
 else:
     st.error("No data available for this selection.")

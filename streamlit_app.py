@@ -139,13 +139,13 @@ if coin_id in panels and scenario in panels[coin_id]:
 
         st.markdown("### ⚡ Momentum Indicators")
         m1, m2, m3 = st.columns(3)
-        m1.metric("RSI", f"{d['rsi']:.1f}", d['rsi_zone'])
-        m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}", "▲ Bullish" if d['macd_bull'] else "▼ Bearish")
+        m1.metric("RSI", f"{d['rsi']:.1f}", d['rsi_zone'], delta_color="off")
+        m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}", "▲ Bullish" if d['macd_bull'] else "▼ Bearish", delta_color="off")
         m3.metric("14d Volatility", f"{d['volatility_pct']:.1f}%")
 
         st.markdown("### 🌐 Sentiment")
         s1, s2, s3, s4 = st.columns(4)
-        s1.metric("Fear & Greed", f"{d['fng_val']:.0f}", d['fng_cls'])
+        s1.metric("Fear & Greed", f"{d['fng_val']:.0f}", d['fng_cls'], delta_color="off")
         s2.metric("News", f"{d['news_score']:+.2f}")
         s3.metric("Reddit", f"{d['x_score']:+.2f}")
         s4.metric("Composite", f"{d['today_sentiment']:+.3f}")

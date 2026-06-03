@@ -1443,8 +1443,10 @@ def run_coin_scenario(
 
     # Build one chart per horizon
     charts_html = {}
+    charts_fig = {}
     for hz in ["7d", "30d", "90d"]:
         fig = build_chart(df_sc, forecasts, coin_id, current_price, scenario, fng_df, horizon=hz)
+        charts_fig[hz] = fig
         charts_html[hz] = fig.to_html(
             include_plotlyjs=False, full_html=False,
             div_id=f"chart_{coin_id}_{scenario}_{hz}"
@@ -1459,9 +1461,11 @@ def run_coin_scenario(
 
     return {
         "charts_html": charts_html,   # {"7d": html, "30d": html, "90d": html}
+        "charts_fig":  charts_fig,    # {"7d": fig, "30d": fig, "90d": fig}
         "mood_html":   mood_html,
         "explanation_html": explanation_html,
         "price": current_price,
+        "fng_df": fng_df,
     }
 
 

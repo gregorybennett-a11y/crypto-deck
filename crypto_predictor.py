@@ -1180,6 +1180,12 @@ def build_combined_dashboard(panels: dict, out_path: str):
     }}
     .footer strong {{ color: #475569; }}
 
+    /* Make Plotly charts fill their container */
+    .hz-chart > div, .js-plotly-plot, .plotly-graph-div {{
+      width: 100% !important;
+      max-width: 100% !important;
+    }}
+
     /* ── Mobile responsive ── */
     @media (max-width: 640px) {{
       .header {{
@@ -1441,8 +1447,7 @@ def run_coin_scenario(
         fig = build_chart(df_sc, forecasts, coin_id, current_price, scenario, fng_df, horizon=hz)
         charts_html[hz] = fig.to_html(
             include_plotlyjs=False, full_html=False,
-            div_id=f"chart_{coin_id}_{scenario}_{hz}",
-            config={"responsive": True}
+            div_id=f"chart_{coin_id}_{scenario}_{hz}"
         )
 
     mood_html = build_mood_html(fng_df)

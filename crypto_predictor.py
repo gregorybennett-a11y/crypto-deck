@@ -422,6 +422,7 @@ def run_prophet(
     last_vola = (train["volatility"].iloc[-1] * reg_stats["volatility"][1]) + reg_stats["volatility"][0]
 
     hist_idx = train.set_index("ds")
+    hist_idx = hist_idx[~hist_idx.index.duplicated(keep="last")]
     for col in ["volume", "volatility", "sentiment_composite"]:
         future[col] = hist_idx[col].reindex(future["ds"]).values
 

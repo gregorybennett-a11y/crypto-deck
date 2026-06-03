@@ -1,0 +1,233 @@
+15:21:54 - cmdstanpy - INFO - Chain [1] start processing
+15:21:55 - cmdstanpy - INFO - Chain [1] done processing
+15:21:55 - cmdstanpy - INFO - Chain [1] start processing
+15:21:55 - cmdstanpy - INFO - Chain [1] done processing
+15:21:55 - cmdstanpy - INFO - Chain [1] start processing
+15:21:55 - cmdstanpy - INFO - Chain [1] done processing
+15:21:56 - cmdstanpy - INFO - Chain [1] start processing
+15:21:56 - cmdstanpy - INFO - Chain [1] done processing
+15:21:56 - cmdstanpy - INFO - Chain [1] start processing
+15:21:56 - cmdstanpy - INFO - Chain [1] done processing
+15:21:57 - cmdstanpy - INFO - Chain [1] start processing
+15:21:57 - cmdstanpy - INFO - Chain [1] done processing
+15:21:57 - cmdstanpy - INFO - Chain [1] start processing
+15:21:57 - cmdstanpy - INFO - Chain [1] done processing
+15:21:57 - cmdstanpy - INFO - Chain [1] start processing
+15:21:58 - cmdstanpy - INFO - Chain [1] done processing
+15:21:58 - cmdstanpy - INFO - Chain [1] start processing
+15:21:58 - cmdstanpy - INFO - Chain [1] done processing
+15:22:03 - cmdstanpy - INFO - Chain [1] start processing
+15:22:03 - cmdstanpy - INFO - Chain [1] done processing
+15:22:03 - cmdstanpy - INFO - Chain [1] start processing
+15:22:03 - cmdstanpy - INFO - Chain [1] done processing
+15:22:03 - cmdstanpy - INFO - Chain [1] start processing
+15:22:03 - cmdstanpy - INFO - Chain [1] done processing
+15:22:04 - cmdstanpy - INFO - Chain [1] start processing
+15:22:04 - cmdstanpy - INFO - Chain [1] done processing
+15:22:04 - cmdstanpy - INFO - Chain [1] start processing
+15:22:04 - cmdstanpy - INFO - Chain [1] done processing
+15:22:05 - cmdstanpy - INFO - Chain [1] start processing
+15:22:05 - cmdstanpy - INFO - Chain [1] done processing
+15:22:05 - cmdstanpy - INFO - Chain [1] start processing
+15:22:05 - cmdstanpy - INFO - Chain [1] done processing
+15:22:06 - cmdstanpy - INFO - Chain [1] start processing
+15:22:06 - cmdstanpy - INFO - Chain [1] done processing
+15:22:06 - cmdstanpy - INFO - Chain [1] start processing
+15:22:06 - cmdstanpy - INFO - Chain [1] done processing
+
+══════════════════════════════════════════════════════════
+  CRYPTO PREDICTION DASHBOARD  —  BTC & ETH
+  Horizons: 7d | 30d | 90d  (rolling from today)
+  Sentiment sources: Fear & Greed · News RSS · Reddit
+  Coins: BITCOIN, ETHEREUM
+  Scenarios: ⚪ Base, 🟢 Bullish, 🔴 Bearish
+══════════════════════════════════════════════════════════
+  Fetching Fear & Greed Index...
+  ✓ Fear & Greed: 730 days  |  Today: 11 (Extreme Fear)
+
+  [BITCOIN / ⚪ Base]
+  Fetching 730d bitcoin price data from Yahoo Finance...
+  ✓ 730 records  |  price range: $53,949 – $124,753
+    (2024-06-04 → 2026-06-03)
+  Current price: $65,404.02
+  Fetching news headlines...
+  ✓ News sentiment: -0.086  (40 relevant headlines)
+  Fetching Reddit sentiment for bitcoin (r/bitcoin, r/CryptoCurrency, r/BitcoinMarkets)...
+    [Reddit] r/bitcoin/hot → 25 posts
+    [Reddit] r/bitcoin/top → 25 posts
+    [Reddit] r/CryptoCurrency/hot → 25 posts
+    [Reddit] r/CryptoCurrency/top → 25 posts
+    [Reddit] r/BitcoinMarkets/hot → 25 posts
+    [Reddit] r/BitcoinMarkets/top → 1 posts
+  ✓ Reddit sentiment: +0.385  (126 posts across 3 subreddits)
+  Today composite sentiment: +0.149  (⚪ Base)
+    Building forecasts...
+    Training Prophet (7d, ⚪ Base)...
+    Training Prophet (30d, ⚪ Base)...
+    Training Prophet (90d, ⚪ Base)...
+
+══════════════════════════════════════════════════════════
+  BITCOIN  —  $65,404.02  |  Scenario: ⚪ Base
+══════════════════════════════════════════════════════════
+  RSI (14):     13.6  ⚠ Oversold
+  MACD hist:    -1128.34  ▼ Bearish
+  Volatility:   40.0% (14d annualised)
+  MA 30/90/200: $76,849 / $73,782 / $79,091
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): +0.149
+
+  7d forecast:  $  75,997.85  (+16.2%)
+              range:  $73,152 – $78,883
+  30d forecast:  $  71,246.39  (+8.9%)
+              range:  $67,413 – $75,368
+  90d forecast:  $  63,418.59  (-3.0%)
+              range:  $49,107 – $79,119
+
+
+  [BITCOIN / 🟢 Bullish]
+  Today composite sentiment: +0.577  (🟢 Bullish)
+    Building forecasts...
+    Training Prophet (7d, 🟢 Bullish)...
+    Training Prophet (30d, 🟢 Bullish)...
+    Training Prophet (90d, 🟢 Bullish)...
+
+══════════════════════════════════════════════════════════
+  BITCOIN  —  $65,404.02  |  Scenario: 🟢 Bullish
+══════════════════════════════════════════════════════════
+  RSI (14):     13.6  ⚠ Oversold
+  MACD hist:    -1128.34  ▼ Bearish
+  Volatility:   40.0% (14d annualised)
+  MA 30/90/200: $76,849 / $73,782 / $79,091
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): +0.577
+
+  7d forecast:  $  69,468.33  (+6.2%)
+              range:  $66,940 – $72,207
+  30d forecast:  $  59,431.00  (-9.1%)
+              range:  $54,785 – $63,921
+  90d forecast:  $  43,829.72  (-33.0%)
+              range:  $26,091 – $74,558
+
+
+  [BITCOIN / 🔴 Bearish]
+  Today composite sentiment: -0.129  (🔴 Bearish)
+    Building forecasts...
+    Training Prophet (7d, 🔴 Bearish)...
+    Training Prophet (30d, 🔴 Bearish)...
+    Training Prophet (90d, 🔴 Bearish)...
+
+══════════════════════════════════════════════════════════
+  BITCOIN  —  $65,404.02  |  Scenario: 🔴 Bearish
+══════════════════════════════════════════════════════════
+  RSI (14):     13.6  ⚠ Oversold
+  MACD hist:    -1128.34  ▼ Bearish
+  Volatility:   40.0% (14d annualised)
+  MA 30/90/200: $76,849 / $73,782 / $79,091
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): -0.129
+
+  7d forecast:  $  72,182.77  (+10.4%)
+              range:  $69,098 – $75,238
+  30d forecast:  $  67,813.63  (+3.7%)
+              range:  $64,087 – $71,580
+  90d forecast:  $  58,400.36  (-10.7%)
+              range:  $46,476 – $72,726
+
+
+  [ETHEREUM / ⚪ Base]
+  Fetching 730d ethereum price data from Yahoo Finance...
+  ✓ 730 records  |  price range: $1,473 – $4,831
+    (2024-06-04 → 2026-06-03)
+  Current price: $1,803.88
+  Fetching news headlines...
+  ✓ News sentiment: -0.028  (14 relevant headlines)
+  Fetching Reddit sentiment for ethereum (r/ethereum, r/CryptoCurrency, r/ethtrader)...
+    [Reddit] r/ethereum/hot → 25 posts
+    [Reddit] r/ethereum/top → 5 posts
+    [Reddit] r/CryptoCurrency/hot → 25 posts
+    [Reddit] r/CryptoCurrency/top → 25 posts
+    [Reddit] r/ethtrader/hot → 25 posts
+    [Reddit] r/ethtrader/top → 10 posts
+  ✓ Reddit sentiment: +0.258  (115 posts across 3 subreddits)
+  Today composite sentiment: +0.115  (⚪ Base)
+    Building forecasts...
+    Training Prophet (7d, ⚪ Base)...
+    Training Prophet (30d, ⚪ Base)...
+    Training Prophet (90d, ⚪ Base)...
+
+══════════════════════════════════════════════════════════
+  ETHEREUM  —  $1,803.88  |  Scenario: ⚪ Base
+══════════════════════════════════════════════════════════
+  RSI (14):     16.7  ⚠ Oversold
+  MACD hist:    -21.34  ▼ Bearish
+  Volatility:   45.6% (14d annualised)
+  MA 30/90/200: $2,146 / $2,175 / $2,478
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): +0.115
+
+  7d forecast:  $   1,713.92  (-5.0%)
+              range:  $1,603 – $1,835
+  30d forecast:  $   1,170.74  (-35.1%)
+              range:  $1,055 – $1,286
+  90d forecast:  $     904.65  (-49.8%)
+              range:  $537 – $1,521
+
+
+  [ETHEREUM / 🟢 Bullish]
+  Today composite sentiment: +0.387  (🟢 Bullish)
+    Building forecasts...
+    Training Prophet (7d, 🟢 Bullish)...
+    Training Prophet (30d, 🟢 Bullish)...
+    Training Prophet (90d, 🟢 Bullish)...
+
+══════════════════════════════════════════════════════════
+  ETHEREUM  —  $1,803.88  |  Scenario: 🟢 Bullish
+══════════════════════════════════════════════════════════
+  RSI (14):     16.7  ⚠ Oversold
+  MACD hist:    -21.34  ▼ Bearish
+  Volatility:   45.6% (14d annualised)
+  MA 30/90/200: $2,146 / $2,175 / $2,478
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): +0.387
+
+  7d forecast:  $   1,645.67  (-8.8%)
+              range:  $1,547 – $1,751
+  30d forecast:  $   1,050.27  (-41.8%)
+              range:  $945 – $1,168
+  90d forecast:  $     731.53  (-59.4%)
+              range:  $434 – $1,329
+
+
+  [ETHEREUM / 🔴 Bearish]
+  Today composite sentiment: -0.042  (🔴 Bearish)
+    Building forecasts...
+    Training Prophet (7d, 🔴 Bearish)...
+    Training Prophet (30d, 🔴 Bearish)...
+    Training Prophet (90d, 🔴 Bearish)...
+
+══════════════════════════════════════════════════════════
+  ETHEREUM  —  $1,803.88  |  Scenario: 🔴 Bearish
+══════════════════════════════════════════════════════════
+  RSI (14):     16.7  ⚠ Oversold
+  MACD hist:    -21.34  ▼ Bearish
+  Volatility:   45.6% (14d annualised)
+  MA 30/90/200: $2,146 / $2,175 / $2,478
+  Fear & Greed: 11 — Extreme Fear
+  Live sentiment (composite): -0.042
+
+  7d forecast:  $   1,938.61  (+7.5%)
+              range:  $1,804 – $2,080
+  30d forecast:  $   1,528.98  (-15.2%)
+              range:  $1,399 – $1,674
+  90d forecast:  $   1,370.92  (-24.0%)
+              range:  $965 – $1,846
+
+
+  ✓ Combined dashboard saved → C:\Users\gbenn\OneDrive\Documents\Claude\Projects\crypto project/crypto_dashboard.html
+
+══════════════════════════════════════════════════════════
+  Done! Open crypto_dashboard.html in your browser.
+  Use the Crypto and Scenario selectors at the top
+  to switch between views.
+══════════════════════════════════════════════════════════
+

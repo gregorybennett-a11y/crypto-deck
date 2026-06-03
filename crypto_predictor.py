@@ -136,41 +136,40 @@ REDDIT_SUBS = {
 # ═══════════════════════════════════════════════════════════════════════════
 
 def fetch_ohlcv(coin_id: str, days: int = 730) -> pd.DataFrame:
-    """Fetch daily OHLCV via yfinance Ticker.history() — avoids MultiIndex bugs."""
-    import yfinance as yf
-    ticker = YAHOO_TICKER.get(coin_id)
-    if not ticker:
-        raise ValueError(f"No Yahoo ticker mapped for {coin_id}")
-    print(f"  Fetching {days}d {coin_id} price data from Yahoo Finance...")
+    """Fetch daily OHLCV via CoinGecko free API."""
+    print(f"  Fetching {days}d {coin_id} price data from CoinGecko...")
+    # CoinGecko free API supports up to 365 days for daily granularity
+    fetch_days = min(days, 365)
+    url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
+    params = {"vs_currency": "usd", "days": fetch_days, "interval": "daily"}
+    r = requests.get(url, params=params, timeout=30)
+    r.raise_for_status()
+    data = r.json()
 
-    raw = yf.Ticker(ticker).history(period=f"{days}d", interval="1d", auto_adjust=True)
-    if raw.empty:
-        raise ValueError(f"Yahoo Finance returned no data for {ticker}")
+    prices  = data.get("prices", [])
+    volumes = data.get("total_volumes", [])
+    mcaps   = data.get("market_caps", [])
 
-    # history() always returns flat columns: Open, High, Low, Close, Volume, ...
-    raw = raw.reset_index()
-    raw.columns = [c.strip() for c in raw.columns]   # strip whitespace just in case
+    df = pd.DataFrame({
+        "date":       [pd.to_datetime(p[0], unit="ms").normalize() for p in prices],
+        "close":      [p[1] for p in prices],
+        "volume":     [v[1] for v in volumes],
+        "market_cap": [m[1] for m in mcaps],
+    })
 
-    df = raw[["Date", "Close", "Volume"]].copy()
-    df.columns = ["date", "close", "volume"]
-    df["date"]   = pd.to_datetime(df["date"]).dt.tz_localize(None).dt.normalize()
     df["close"]  = pd.to_numeric(df["close"],  errors="coerce").astype(float)
     df["volume"] = pd.to_numeric(df["volume"], errors="coerce").astype(float)
-
-    SUPPLY = {"bitcoin": 19_700_000, "ethereum": 120_000_000}
-    df["market_cap"] = df["close"] * SUPPLY.get(coin_id, 1)
-
-    df = df.dropna(subset=["close"]).sort_values("date").tail(days).reset_index(drop=True)
+    df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
     print(f"  ✓ {len(df)} records  |  price range: ${df['close'].min():,.0f} – ${df['close'].max():,.0f}")
     print(f"    ({df['date'].iloc[0].date()} → {df['date'].iloc[-1].date()})")
     return df
 
 
 def fetch_current_price(coin_id: str) -> float:
-    import yfinance as yf
-    ticker = YAHOO_TICKER.get(coin_id)
-    raw = yf.Ticker(ticker).history(period="5d", interval="1d", auto_adjust=True)
-    return float(raw["Close"].iloc[-1])
+    url = "https://api.coingecko.com/api/v3/simple/price"
+    r = requests.get(url, params={"ids": coin_id, "vs_currencies": "usd"}, timeout=10)
+    r.raise_for_status()
+    return float(r.json()[coin_id]["usd"])
 
 
 # ═══════════════════════════════════════════════════════════════════════════

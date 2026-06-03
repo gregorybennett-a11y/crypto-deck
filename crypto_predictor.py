@@ -728,6 +728,101 @@ def _section(title: str, body: str) -> str:
     </div>"""
 
 
+def generate_explanation_data(
+    df: pd.DataFrame,
+    forecasts: dict,
+    coin_id: str,
+    current_price: float,
+    scenario: str,
+    today_sentiment: float,
+    fng_df: pd.DataFrame,
+    news_score: float = 0.0,
+    x_score: float = 0.0,
+) -> dict:
+    """Return structured explanation data for native Streamlit rendering."""
+    sp   = SCENARIO_PARAMS[scenario]
+    name = coin_id.capitalize()
+    last = df.dropna(subset=["rsi", "macd_hist", "ma_30"]).iloc[-1]
+
+    price_vs_ma30  = (current_price - last["ma_30"])  / last["ma_30"]  * 100
+    price_vs_ma90  = (current_price - last["ma_90"])  / last["ma_90"]  * 100
+    price_vs_ma200 = (current_price - last["ma_200"]) / last["ma_200"] * 100
+
+    def vs_label(pct):
+        if pct > 5:   return f"well above ({pct:+.1f}%)"
+        if pct > 0:   return f"slightly above ({pct:+.1f}%)"
+        if pct > -5:  return f"slightly below ({pct:+.1f}%)"
+        return f"well below ({pct:+.1f}%)"
+
+    trend_short = "uptrend" if price_vs_ma30 > 0 else "downtrend"
+    trend_long  = "above its long-term average" if price_vs_ma200 > 0 else "below its long-term average"
+    ma_cross = "bullish golden-cross" if last["ma_30"] > last["ma_90"] else "bearish death-cross"
+    bb_pos = (current_price - last["bb_lower"]) / (last["bb_upper"] - last["bb_lower"])
+    bb_text = ("near the upper Bollinger Band (potential resistance)" if bb_pos > 0.85
+               else "near the lower Bollinger Band (potential support/oversold)" if bb_pos < 0.15
+               else f"mid-Bollinger Bands ({bb_pos*100:.0f}% of range, no extreme)")
+
+    rsi = last["rsi"]
+    rsi_zone = ("🔴 Overbought (>70)" if rsi > 70 else "🟢 Oversold (<30)" if rsi < 30
+                else "🟢 Bullish neutral" if rsi > 55 else "🟠 Bearish neutral" if rsi < 45 else "⚪ Neutral")
+    macd_bull = last["macd_hist"] > 0
+    vol_pct = last["volatility"] * 100
+
+    fng_val = float(fng_df["fng"].iloc[-1]) if not fng_df.empty else 50.0
+    fng_cls = fng_df["value_classification"].iloc[-1] if not fng_df.empty else "Unknown"
+
+    forecasts_list = []
+    chg_90 = 0.0
+    for label, fc in forecasts.items():
+        future = fc[fc["date"] > df["date"].max()]
+        if future.empty:
+            continue
+        t = future.iloc[-1]
+        chg = (t["yhat"] - current_price) / current_price * 100
+        if label == "90d":
+            chg_90 = chg
+        forecasts_list.append({
+            "horizon": label,
+            "target": t["yhat"],
+            "change_pct": chg,
+            "lower": t["yhat_lower"],
+            "upper": t["yhat_upper"],
+        })
+
+    direction = "upward" if chg_90 > 0 else "downward"
+    magnitude = "strongly" if abs(chg_90) > 25 else "moderately" if abs(chg_90) > 10 else "mildly"
+
+    return {
+        "name": name,
+        "scenario_label": sp["label"],
+        "current_price": current_price,
+        "trend_short": trend_short,
+        "trend_long": trend_long,
+        "ma_cross": ma_cross,
+        "bb_text": bb_text,
+        "price_vs_ma30": price_vs_ma30,
+        "price_vs_ma90": price_vs_ma90,
+        "price_vs_ma200": price_vs_ma200,
+        "vs_ma30_label": vs_label(price_vs_ma30),
+        "vs_ma90_label": vs_label(price_vs_ma90),
+        "vs_ma200_label": vs_label(price_vs_ma200),
+        "rsi": rsi,
+        "rsi_zone": rsi_zone,
+        "macd_hist": last["macd_hist"],
+        "macd_bull": macd_bull,
+        "volatility_pct": vol_pct,
+        "fng_val": fng_val,
+        "fng_cls": fng_cls,
+        "news_score": news_score,
+        "x_score": x_score,
+        "today_sentiment": today_sentiment,
+        "forecasts": forecasts_list,
+        "direction": direction,
+        "magnitude": magnitude,
+        "scenario": scenario,
+    }
+
+
 def generate_explanation(
     df: pd.DataFrame,
     forecasts: dict,
@@ -1459,13 +1554,22 @@ def run_coin_scenario(
         today_sentiment, fng_df, news_score, x_score
     )
 
+    explanation_data = generate_explanation_data(
+        df_sc, forecasts, coin_id, current_price, scenario,
+        today_sentiment, fng_df, news_score, x_score
+    )
+
     return {
-        "charts_html": charts_html,   # {"7d": html, "30d": html, "90d": html}
-        "charts_fig":  charts_fig,    # {"7d": fig, "30d": fig, "90d": fig}
+        "charts_html": charts_html,
+        "charts_fig":  charts_fig,
         "mood_html":   mood_html,
         "explanation_html": explanation_html,
+        "explanation_data": explanation_data,
         "price": current_price,
         "fng_df": fng_df,
+        "news_score": news_score,
+        "x_score": x_score,
+        "today_sentiment": today_sentiment,
     }
 
 

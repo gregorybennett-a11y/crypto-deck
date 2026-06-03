@@ -123,9 +123,53 @@ if coin_id in panels and scenario in panels[coin_id]:
         st.plotly_chart(mood_fig, use_container_width=True)
 
     # Explanation
-    explanation = data.get("explanation_html", "")
-    if explanation:
+    d = data.get("explanation_data")
+    if d:
         st.markdown("---")
-        st.markdown(explanation, unsafe_allow_html=True)
+
+        st.markdown("### 📈 Trend & Price Structure")
+        st.markdown(
+            f"{d['name']} is **${d['current_price']:,.2f}**, "
+            f"{d['vs_ma30_label']} its 30-day MA, "
+            f"{d['vs_ma90_label']} its 90-day MA, and "
+            f"{d['vs_ma200_label']} its 200-day MA. "
+            f"Short-term **{d['trend_short']}**, {d['trend_long']}. "
+            f"{d['ma_cross'].capitalize()} structure. {d['bb_text'].capitalize()}."
+        )
+
+        st.markdown("### ⚡ Momentum Indicators")
+        m1, m2, m3 = st.columns(3)
+        m1.metric("RSI", f"{d['rsi']:.1f}", d['rsi_zone'])
+        m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}", "▲ Bullish" if d['macd_bull'] else "▼ Bearish")
+        m3.metric("14d Volatility", f"{d['volatility_pct']:.1f}%")
+
+        st.markdown("### 🌐 Sentiment")
+        s1, s2, s3, s4 = st.columns(4)
+        s1.metric("Fear & Greed", f"{d['fng_val']:.0f}", d['fng_cls'])
+        s2.metric("News", f"{d['news_score']:+.2f}")
+        s3.metric("Reddit", f"{d['x_score']:+.2f}")
+        s4.metric("Composite", f"{d['today_sentiment']:+.3f}")
+
+        st.markdown("### 🔮 Forecast Summary")
+        import pandas as pd
+        rows = []
+        for f in d["forecasts"]:
+            rows.append({
+                "Horizon": f["horizon"],
+                "Target Price": f"${f['target']:,.2f}",
+                "Change": f"{f['change_pct']:+.1f}%",
+                "80% Range": f"${f['lower']:,.0f} – ${f['upper']:,.0f}",
+            })
+        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+        st.caption(f"The model projects a **{d['magnitude']} {d['direction']}** trajectory over 90 days under the **{d['scenario_label']}** scenario.")
+
+        st.markdown("### 💡 Why This Scenario?")
+        scenario_text = {
+            "bullish": "The **Bullish scenario** amplifies positive sentiment signals and increases Prophet's changepoint flexibility to follow upward momentum. Positive sentiment scores are weighted 1.5×.",
+            "bearish": "The **Bearish scenario** amplifies negative signals and anchors the model against upside momentum. Negative sentiment scores are weighted 1.5×.",
+            "base": "The **Base scenario** is the neutral benchmark — no directional bias, sentiment at face value (1× weight), default Prophet settings. The most statistically honest forecast.",
+        }.get(d["scenario"], "")
+        st.info(scenario_text)
+        st.warning("⚠️ Crypto markets are highly unpredictable. These forecasts are research tools, not financial advice.")
 else:
     st.error("No data available for this selection.")

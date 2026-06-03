@@ -138,17 +138,42 @@ if coin_id in panels and scenario in panels[coin_id]:
         )
 
         st.markdown("### ⚡ Momentum Indicators")
+        def sentiment_delta(score):
+            if score > 0.05:  return (f"+{score:.2f} 🟢", "normal")
+            if score < -0.05: return (f"{score:.2f} 🔴", "inverse")
+            return (f"{score:.2f} ⚪", "off")
+
+        def rsi_delta(rsi):
+            if rsi < 30:  return ("🟢 Oversold — potential bounce", "off")
+            if rsi > 70:  return ("🔴 Overbought — potential pullback", "off")
+            if rsi > 55:  return ("🟢 Bullish neutral", "off")
+            if rsi < 45:  return ("🔴 Bearish neutral", "off")
+            return ("⚪ Neutral", "off")
+
+        def fng_delta(val, cls):
+            if val >= 60: return (f"🟢 {cls}", "off")
+            if val <= 40: return (f"🔴 {cls}", "off")
+            return (f"⚪ {cls}", "off")
+
         m1, m2, m3 = st.columns(3)
-        m1.metric("RSI", f"{d['rsi']:.1f}", d['rsi_zone'], delta_color="off")
-        m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}", "▲ Bullish" if d['macd_bull'] else "▼ Bearish", delta_color="off")
-        m3.metric("14d Volatility", f"{d['volatility_pct']:.1f}%")
+        rsi_d, rsi_c = rsi_delta(d['rsi'])
+        m1.metric("RSI", f"{d['rsi']:.1f}", rsi_d, delta_color=rsi_c)
+        macd_label = ("▲ Bullish 🟢" if d['macd_bull'] else "▼ Bearish 🔴")
+        m2.metric("MACD Histogram", f"{d['macd_hist']:+.2f}", macd_label, delta_color="off")
+        vol = d['volatility_pct']
+        vol_label = ("🔴 High volatility" if vol > 80 else "⚪ Moderate" if vol > 40 else "🟢 Low volatility")
+        m3.metric("14d Volatility", f"{vol:.1f}%", vol_label, delta_color="off")
 
         st.markdown("### 🌐 Sentiment")
         s1, s2, s3, s4 = st.columns(4)
-        s1.metric("Fear & Greed", f"{d['fng_val']:.0f}", d['fng_cls'], delta_color="off")
-        s2.metric("News", f"{d['news_score']:+.2f}")
-        s3.metric("Reddit", f"{d['x_score']:+.2f}")
-        s4.metric("Composite", f"{d['today_sentiment']:+.3f}")
+        fng_d, fng_c = fng_delta(d['fng_val'], d['fng_cls'])
+        s1.metric("Fear & Greed", f"{d['fng_val']:.0f}", fng_d, delta_color=fng_c)
+        nd, nc = sentiment_delta(d['news_score'])
+        s2.metric("News", f"{d['news_score']:+.2f}", nd, delta_color=nc)
+        rd, rc = sentiment_delta(d['x_score'])
+        s3.metric("Reddit", f"{d['x_score']:+.2f}", rd, delta_color=rc)
+        cd, cc = sentiment_delta(d['today_sentiment'])
+        s4.metric("Composite", f"{d['today_sentiment']:+.3f}", cd, delta_color=cc)
 
         st.markdown("### 🔮 Forecast Summary")
         import pandas as pd

@@ -51,6 +51,6 @@ def generate_dashboard():
 html_content = generate_dashboard()
 
 if html_content:
-    st.components.v1.html(html_content, height=1100, scrolling=True)
+    st.components.v1.html(html_content, height=1400, scrolling=True)
 else:
     st.error("Dashboard could not be generated. Check the logs.")

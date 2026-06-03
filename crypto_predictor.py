@@ -1179,6 +1179,32 @@ def build_combined_dashboard(panels: dict, out_path: str):
       border-top: 1px solid #0f172a;
     }}
     .footer strong {{ color: #475569; }}
+
+    /* ── Mobile responsive ── */
+    @media (max-width: 640px) {{
+      .header {{
+        padding: 12px 16px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+      }}
+      .header-title {{ font-size: 15px; }}
+      .selectors {{
+        padding: 10px 12px;
+        gap: 10px;
+        flex-direction: column;
+        align-items: flex-start;
+      }}
+      .selector-group {{ flex-wrap: wrap; gap: 6px; }}
+      .divider {{ display: none; }}
+      .coin-tab {{ font-size: 13px; padding: 6px 10px; }}
+      .sc-btn, .hz-btn {{ font-size: 12px; padding: 6px 10px; }}
+      .price-badge {{ font-size: 11px; }}
+      .content {{ padding: 12px 10px 32px; }}
+      .modal {{ padding: 24px 18px; }}
+      .modal h2 {{ font-size: 18px; }}
+      .modal p, .modal li {{ font-size: 13px; }}
+    }}
   </style>
 </head>
 <body>

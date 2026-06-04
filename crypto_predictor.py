@@ -135,30 +135,24 @@ REDDIT_SUBS = {
 # 1. DATA FETCHING
 # ═══════════════════════════════════════════════════════════════════════════
 
-def fetch_ohlcv(coin_id: str, days: int = 730) -> pd.DataFrame:
-    """Fetch daily OHLCV via CoinGecko free API."""
-    print(f"  Fetching {days}d {coin_id} price data from CoinGecko...")
-    # CoinGecko free API supports up to 365 days for daily granularity
-    fetch_days = min(days, 365)
-    url = f"https://api.coingecko.com/api/v3/coins/{coin_id}/market_chart"
-    params = {"vs_currency": "usd", "days": fetch_days, "interval": "daily"}
-    r = requests.get(url, params=params, timeout=30)
-    r.raise_for_status()
-    data = r.json()
-
-    prices  = data.get("prices", [])
-    volumes = data.get("total_volumes", [])
-    mcaps   = data.get("market_caps", [])
-
+def fetch_ohlcv(coin_id: str, days: int = 365) -> pd.DataFrame:
+    """Fetch daily OHLCV via Yahoo Finance (yfinance)."""
+    import yfinance as yf
+    ticker = YAHOO_TICKER.get(coin_id, f"{coin_id.upper()}-USD")
+    print(f"  Fetching {days}d {coin_id} price data from Yahoo Finance ({ticker})...")
+    period = "2y" if days > 365 else "1y"
+    raw = yf.download(ticker, period=period, interval="1d", progress=False, auto_adjust=True)
+    raw = raw.reset_index()
+    # Flatten multi-level columns if present
+    if isinstance(raw.columns, pd.MultiIndex):
+        raw.columns = [c[0] for c in raw.columns]
+    raw.columns = [str(c).lower() for c in raw.columns]
     df = pd.DataFrame({
-        "date":       [pd.to_datetime(p[0], unit="ms").normalize() for p in prices],
-        "close":      [p[1] for p in prices],
-        "volume":     [v[1] for v in volumes],
-        "market_cap": [m[1] for m in mcaps],
+        "date":       pd.to_datetime(raw["date"]).dt.normalize(),
+        "close":      pd.to_numeric(raw["close"], errors="coerce").astype(float),
+        "volume":     pd.to_numeric(raw.get("volume", 0), errors="coerce").astype(float),
+        "market_cap": 0.0,
     })
-
-    df["close"]  = pd.to_numeric(df["close"],  errors="coerce").astype(float)
-    df["volume"] = pd.to_numeric(df["volume"], errors="coerce").astype(float)
     df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
     print(f"  ✓ {len(df)} records  |  price range: ${df['close'].min():,.0f} – ${df['close'].max():,.0f}")
     print(f"    ({df['date'].iloc[0].date()} → {df['date'].iloc[-1].date()})")
@@ -166,10 +160,10 @@ def fetch_ohlcv(coin_id: str, days: int = 730) -> pd.DataFrame:
 
 
 def fetch_current_price(coin_id: str) -> float:
-    url = "https://api.coingecko.com/api/v3/simple/price"
-    r = requests.get(url, params={"ids": coin_id, "vs_currencies": "usd"}, timeout=10)
-    r.raise_for_status()
-    return float(r.json()[coin_id]["usd"])
+    """Get latest price from Yahoo Finance."""
+    import yfinance as yf
+    ticker = YAHOO_TICKER.get(coin_id, f"{coin_id.upper()}-USD")
+    return float(yf.Ticker(ticker).fast_info["last_price"])
 
 
 # ═══════════════════════════════════════════════════════════════════════════

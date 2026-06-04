@@ -135,14 +135,32 @@ REDDIT_SUBS = {
 # 1. DATA FETCHING
 # ═══════════════════════════════════════════════════════════════════════════
 
-def fetch_ohlcv(coin_id: str, days: int = 365) -> pd.DataFrame:
-    """Fetch daily OHLCV via Yahoo Finance (yfinance)."""
+KRAKEN_PAIR = {"bitcoin": "XBTUSD", "ethereum": "ETHUSD"}
+
+
+def _fetch_ohlcv_kraken(coin_id: str, days: int) -> pd.DataFrame:
+    pair  = KRAKEN_PAIR.get(coin_id, f"{coin_id.upper()}USD")
+    since = int((pd.Timestamp.now() - pd.Timedelta(days=days)).timestamp())
+    r = requests.get("https://api.kraken.com/0/public/OHLC",
+                     params={"pair": pair, "interval": 1440, "since": since}, timeout=30)
+    r.raise_for_status()
+    result = r.json()
+    if result.get("error"):
+        raise RuntimeError(result["error"])
+    data = next(iter(result["result"].values()))
+    df = pd.DataFrame(data, columns=["time","open","high","low","close","vwap","volume","count"])
+    df["date"]   = pd.to_datetime(df["time"].astype(int), unit="s").dt.normalize()
+    df["close"]  = pd.to_numeric(df["close"],  errors="coerce").astype(float)
+    df["volume"] = pd.to_numeric(df["volume"], errors="coerce").astype(float)
+    df["market_cap"] = 0.0
+    return df[["date","close","volume","market_cap"]].dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
+
+
+def _fetch_ohlcv_yfinance(coin_id: str, days: int) -> pd.DataFrame:
     import yfinance as yf
     ticker = YAHOO_TICKER.get(coin_id, f"{coin_id.upper()}-USD")
-    print(f"  Fetching {days}d {coin_id} price data from Yahoo Finance ({ticker})...")
     period = "2y" if days > 365 else "1y"
     raw = yf.download(ticker, period=period, interval="1d", progress=False, auto_adjust=True)
-    # Flatten multi-level columns (yfinance ≥0.2 returns ('Close','BTC-USD') tuples)
     if isinstance(raw.columns, pd.MultiIndex):
         raw.columns = raw.columns.get_level_values(0)
     df = pd.DataFrame({
@@ -151,17 +169,35 @@ def fetch_ohlcv(coin_id: str, days: int = 365) -> pd.DataFrame:
         "volume":     pd.to_numeric(raw["Volume"] if "Volume" in raw.columns else 0, errors="coerce").astype(float),
         "market_cap": 0.0,
     })
-    df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
-    print(f"  ✓ {len(df)} records  |  price range: ${df['close'].min():,.0f} – ${df['close'].max():,.0f}")
-    print(f"    ({df['date'].iloc[0].date()} → {df['date'].iloc[-1].date()})")
+    return df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)
+
+
+def fetch_ohlcv(coin_id: str, days: int = 365) -> pd.DataFrame:
+    """Fetch daily OHLCV — Kraken primary, yfinance fallback."""
+    try:
+        print(f"  Fetching {days}d {coin_id} from Kraken...")
+        df = _fetch_ohlcv_kraken(coin_id, days)
+        if df.empty:
+            raise ValueError("Empty response")
+    except Exception as e:
+        print(f"  Kraken failed ({e}), falling back to yfinance...")
+        df = _fetch_ohlcv_yfinance(coin_id, days)
+    print(f"  ✓ {len(df)} records  |  ${df['close'].min():,.0f} – ${df['close'].max():,.0f}")
     return df
 
 
 def fetch_current_price(coin_id: str) -> float:
-    """Get latest price from Yahoo Finance."""
-    import yfinance as yf
-    ticker = YAHOO_TICKER.get(coin_id, f"{coin_id.upper()}-USD")
-    return float(yf.Ticker(ticker).fast_info["last_price"])
+    """Get latest price — Kraken primary, yfinance fallback."""
+    try:
+        pair = KRAKEN_PAIR.get(coin_id, f"{coin_id.upper()}USD")
+        r = requests.get("https://api.kraken.com/0/public/Ticker",
+                         params={"pair": pair}, timeout=10)
+        r.raise_for_status()
+        return float(next(iter(r.json()["result"].values()))["c"][0])
+    except Exception:
+        import yfinance as yf
+        ticker = YAHOO_TICKER.get(coin_id, f"{coin_id.upper()}-USD")
+        return float(yf.Ticker(ticker).fast_info["last_price"])
 
 
 # ═══════════════════════════════════════════════════════════════════════════

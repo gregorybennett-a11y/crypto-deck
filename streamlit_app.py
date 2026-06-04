@@ -12,7 +12,7 @@ SCENARIO_LABELS = {"base": "⚪ Base", "bullish": "🟢 Bullish", "bearish": "�
 HORIZON_LABELS  = {"7d": "7 Days", "30d": "30 Days", "90d": "90 Days"}
 
 
-@st.cache_data(ttl=3600, show_spinner="Fetching market data & running predictions... (~30–60s)")
+@st.cache_data(ttl=86400, show_spinner="Fetching market data & running predictions... (~30–60s)")
 def load_all_data():
     coins     = list(COINS.keys())
     scenarios = list(SCENARIO_PARAMS.keys())

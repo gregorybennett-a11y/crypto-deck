@@ -142,15 +142,13 @@ def fetch_ohlcv(coin_id: str, days: int = 365) -> pd.DataFrame:
     print(f"  Fetching {days}d {coin_id} price data from Yahoo Finance ({ticker})...")
     period = "2y" if days > 365 else "1y"
     raw = yf.download(ticker, period=period, interval="1d", progress=False, auto_adjust=True)
-    raw = raw.reset_index()
-    # Flatten multi-level columns if present
+    # Flatten multi-level columns (yfinance ≥0.2 returns ('Close','BTC-USD') tuples)
     if isinstance(raw.columns, pd.MultiIndex):
-        raw.columns = [c[0] for c in raw.columns]
-    raw.columns = [str(c).lower() for c in raw.columns]
+        raw.columns = raw.columns.get_level_values(0)
     df = pd.DataFrame({
-        "date":       pd.to_datetime(raw["date"]).dt.normalize(),
-        "close":      pd.to_numeric(raw["close"], errors="coerce").astype(float),
-        "volume":     pd.to_numeric(raw.get("volume", 0), errors="coerce").astype(float),
+        "date":       pd.to_datetime(raw.index).normalize(),
+        "close":      pd.to_numeric(raw["Close"], errors="coerce").astype(float),
+        "volume":     pd.to_numeric(raw["Volume"] if "Volume" in raw.columns else 0, errors="coerce").astype(float),
         "market_cap": 0.0,
     })
     df = df.dropna(subset=["close"]).sort_values("date").reset_index(drop=True)

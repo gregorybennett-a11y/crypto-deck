@@ -8,8 +8,147 @@ from crypto_predictor import (
 )
 
 COIN_LABELS     = {"bitcoin": "₿ Bitcoin (BTC)", "ethereum": "Ξ Ethereum (ETH)"}
+COIN_SHORT      = {"bitcoin": "BTC", "ethereum": "ETH"}
+COIN_SYMBOL     = {"bitcoin": "₿", "ethereum": "Ξ"}
+COIN_GRADIENT   = {"bitcoin": "linear-gradient(135deg,#F7931A,#fbbf24)",
+                   "ethereum": "linear-gradient(135deg,#627EEA,#22d3ee)"}
 SCENARIO_LABELS = {"base": "⚪ Base", "bullish": "🟢 Bullish", "bearish": "🔴 Bearish"}
 HORIZON_LABELS  = {"7d": "7 Days", "30d": "30 Days", "90d": "90 Days"}
+
+# ── Global design system ──────────────────────────────────────────────────────
+st.markdown("""
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
+
+html, body, [class*="st-"], .stApp { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; }
+
+.stApp {
+  background:
+    radial-gradient(1100px 520px at 12% -8%, rgba(99,102,241,.18), transparent 60%),
+    radial-gradient(900px 480px at 88% -4%, rgba(34,211,238,.12), transparent 55%),
+    radial-gradient(1000px 620px at 50% 112%, rgba(167,139,250,.09), transparent 60%),
+    #05070d;
+}
+[data-testid="stHeader"] { background: transparent; }
+.block-container { padding-top: 1.6rem; max-width: 1180px; }
+
+/* ── Hero ── */
+.cx-hero {
+  position: relative; overflow: hidden;
+  background: rgba(15,23,42,.55);
+  border: 1px solid rgba(148,163,184,.14);
+  border-radius: 20px; padding: 1.6rem 1.9rem 1.5rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 12px 40px rgba(2,6,23,.5);
+  margin-bottom: 1.1rem;
+}
+.cx-hero::before {
+  content:''; position:absolute; inset:0 0 auto 0; height:3px;
+  background: linear-gradient(90deg,#6366f1,#22d3ee,#a78bfa);
+}
+.cx-hero .cx-badge {
+  display:inline-flex; align-items:center; gap:.4rem;
+  font-size:.66rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  color:#22d3ee; background:rgba(34,211,238,.08);
+  border:1px solid rgba(34,211,238,.25); border-radius:999px;
+  padding:.25rem .7rem; margin-bottom:.7rem;
+}
+.cx-hero .cx-badge .dot {
+  width:7px; height:7px; border-radius:50%; background:#22d3ee;
+  box-shadow:0 0 8px #22d3ee; animation: cx-pulse 2s infinite;
+}
+@keyframes cx-pulse { 50% { opacity:.35; } }
+.cx-hero h1 {
+  margin:0; font-size:2.05rem; font-weight:800; letter-spacing:-.02em; line-height:1.15;
+  background: linear-gradient(135deg,#e2e8f0 25%,#818cf8 65%,#22d3ee);
+  -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+}
+.cx-hero p { margin:.45rem 0 0; color:#94a3b8; font-size:.9rem; }
+
+/* ── Price banner ── */
+.cx-price {
+  display:flex; align-items:center; gap:1.1rem;
+  background: rgba(15,23,42,.55); border:1px solid rgba(148,163,184,.14);
+  border-radius:18px; padding:1.05rem 1.4rem; backdrop-filter: blur(12px);
+  box-shadow: 0 8px 28px rgba(2,6,23,.45); margin: .2rem 0 .9rem;
+}
+.cx-price .coin-ic {
+  width:52px; height:52px; border-radius:14px; flex:0 0 52px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.6rem; font-weight:800; color:#0b1120;
+  box-shadow: 0 6px 18px rgba(2,6,23,.5);
+}
+.cx-price .p-name { font-size:.72rem; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:#94a3b8; }
+.cx-price .p-val { font-family:'JetBrains Mono',monospace; font-size:1.85rem;
+  font-weight:700; color:#f1f5f9; line-height:1.2; }
+.cx-chip {
+  display:inline-block; font-size:.7rem; font-weight:600; color:#cbd5e1;
+  background:rgba(99,102,241,.10); border:1px solid rgba(99,102,241,.3);
+  border-radius:999px; padding:.22rem .65rem; margin-left:.35rem;
+}
+
+/* ── Section headers ── */
+.cx-sec {
+  display:flex; align-items:center; gap:.6rem;
+  font-size:1.02rem; font-weight:700; color:#e2e8f0;
+  margin: 1.4rem 0 .7rem; letter-spacing:-.01em;
+}
+.cx-sec::before {
+  content:''; width:4px; height:1.05rem; border-radius:4px;
+  background: linear-gradient(180deg,#6366f1,#22d3ee);
+}
+
+/* ── Glass cards / narrative ── */
+.cx-card {
+  background: rgba(15,23,42,.5); border:1px solid rgba(148,163,184,.13);
+  border-radius:14px; padding:1rem 1.2rem; backdrop-filter: blur(10px);
+  color:#cbd5e1; font-size:.92rem; line-height:1.65;
+}
+.cx-card b, .cx-card strong { color:#f1f5f9; }
+
+/* ── Forecast cards ── */
+.fc-grid { display:flex; gap:.8rem; }
+.fc-card {
+  flex:1; background: rgba(15,23,42,.5); border:1px solid rgba(148,163,184,.13);
+  border-radius:14px; padding: .95rem 1.05rem; backdrop-filter: blur(10px);
+  transition: transform .15s ease, border-color .15s ease;
+}
+.fc-card:hover { transform: translateY(-2px); }
+.fc-card.active { border-color: rgba(99,102,241,.55);
+  box-shadow: 0 0 0 1px rgba(99,102,241,.35), 0 10px 30px rgba(99,102,241,.12); }
+.fc-card .fc-h { font-size:.68rem; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:#94a3b8; margin-bottom:.35rem; }
+.fc-card .fc-t { font-family:'JetBrains Mono',monospace; font-size:1.3rem;
+  font-weight:700; color:#f1f5f9; }
+.fc-card .fc-c { font-size:.85rem; font-weight:700; margin:.15rem 0 .4rem; }
+.fc-card .fc-r { font-size:.72rem; color:#7c8aa0; font-family:'JetBrains Mono',monospace; }
+.fc-up   { color:#34d399; } .fc-down { color:#fb7185; }
+
+/* ── Streamlit widget polish ── */
+div[data-testid="stMetric"] {
+  background: rgba(15,23,42,.5); border:1px solid rgba(148,163,184,.13);
+  border-radius:14px; padding:.85rem 1rem .7rem; backdrop-filter: blur(10px);
+}
+div[data-testid="stMetric"] label { color:#94a3b8 !important; }
+div[data-testid="stMetricValue"] { font-family:'JetBrains Mono',monospace; font-weight:700; }
+
+div[data-baseweb="select"] > div {
+  background: rgba(15,23,42,.7) !important;
+  border-color: rgba(99,102,241,.28) !important;
+  border-radius: 10px !important;
+}
+div[data-testid="stExpander"] {
+  background: rgba(15,23,42,.45); border:1px solid rgba(148,163,184,.13);
+  border-radius: 14px; overflow:hidden;
+}
+div[data-testid="stExpander"] summary { font-weight:600; }
+[data-testid="stDataFrame"] { border:1px solid rgba(148,163,184,.13); border-radius:12px; }
+hr { border-color: rgba(148,163,184,.12) !important; }
+
+div[data-testid="stAlert"] { border-radius: 12px; backdrop-filter: blur(8px); }
+</style>
+""", unsafe_allow_html=True)
 
 
 @st.cache_data(ttl=14400, show_spinner="Fetching market data & running predictions... (~30–60s)")
@@ -31,11 +170,32 @@ def load_all_data():
     return panels
 
 
+def polish(fig, plot_bg="rgba(13,20,38,0.45)"):
+    """Apply the shared dark-fintech theme to any Plotly figure."""
+    fig.update_layout(
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor=plot_bg,
+        font=dict(family="Inter, -apple-system, sans-serif", size=12, color="#cbd5e1"),
+        hoverlabel=dict(bgcolor="#111a30", bordercolor="rgba(99,102,241,.45)",
+                        font=dict(family="Inter, sans-serif", size=12, color="#e2e8f0")),
+        legend=dict(bgcolor="rgba(0,0,0,0)"),
+    )
+    fig.update_layout(title_font=dict(family="Inter, sans-serif", size=17, color="#f1f5f9"))
+    fig.update_xaxes(gridcolor="rgba(148,163,184,.08)", zerolinecolor="rgba(148,163,184,.08)")
+    fig.update_yaxes(gridcolor="rgba(148,163,184,.08)", zerolinecolor="rgba(148,163,184,.08)")
+    return fig
+
+
 panels = load_all_data()
 
-# ── Header ────────────────────────────────────────────────────────────────────
-st.markdown("## 🪙 Crypto Prediction Dashboard")
-st.caption("BTC & ETH · 7d / 30d / 90d forecasts · Data: CoinGecko, Fear & Greed, News, Reddit")
+# ── Hero ──────────────────────────────────────────────────────────────────────
+st.markdown("""
+<div class="cx-hero">
+  <div class="cx-badge"><span class="dot"></span>Live ML Forecasts</div>
+  <h1>Crypto Prediction Dashboard</h1>
+  <p>BTC &amp; ETH · 7d / 30d / 90d Prophet forecasts · CoinGecko · Fear &amp; Greed · News · Reddit</p>
+</div>
+""", unsafe_allow_html=True)
 
 with st.expander("📖 How to Use This Dashboard"):
     st.markdown("""
@@ -65,8 +225,6 @@ It tracks the current price of Bitcoin and Ethereum and uses a mathematical mode
 **MACD** shows momentum. Positive = buying momentum growing. Negative = selling momentum growing.
     """)
 
-st.divider()
-
 # ── Controls ─────────────────────────────────────────────────────────────────
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -83,17 +241,27 @@ with col3:
     hz_label  = st.selectbox("Horizon", list(HORIZON_LABELS.values()))
     horizon   = {v: k for k, v in HORIZON_LABELS.items()}[hz_label]
 
-st.divider()
-
 # ── Chart ─────────────────────────────────────────────────────────────────────
 if coin_id in panels and scenario in panels[coin_id]:
     data = panels[coin_id][scenario]
 
     price = data["price"]
-    st.metric(label=COIN_LABELS[coin_id], value=f"${price:,.2f}")
+    st.markdown(f"""
+<div class="cx-price">
+  <div class="coin-ic" style="background:{COIN_GRADIENT[coin_id]}">{COIN_SYMBOL[coin_id]}</div>
+  <div>
+    <div class="p-name">{coin_id.capitalize()} · {COIN_SHORT[coin_id]}</div>
+    <div class="p-val">${price:,.2f}</div>
+  </div>
+  <div style="margin-left:auto;text-align:right">
+    <span class="cx-chip">{sc_label}</span>
+    <span class="cx-chip">{hz_label}</span>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     fig = data["charts_fig"][horizon]
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(polish(fig), use_container_width=True)
 
     # Fear & Greed bar chart
     fng_df = data.get("fng_df")
@@ -103,45 +271,44 @@ if coin_id in panels and scenario in panels[coin_id]:
         fng = fng_df.copy().sort_values("date").tail(90)
         fng["x"] = pd.to_datetime(fng["date"]).dt.strftime("%Y-%m-%d")
         colors = fng["fng"].apply(
-            lambda v: "#ef4444" if v < 40 else ("#22c55e" if v > 60 else "#f59e0b")
+            lambda v: "#fb7185" if v < 40 else ("#34d399" if v > 60 else "#fbbf24")
         )
         mood_fig = go.Figure(go.Bar(
             x=fng["x"], y=fng["fng"],
             marker_color=colors,
+            marker_line_width=0,
             hovertemplate="%{x}: %{y}<extra></extra>"
         ))
         mood_fig.update_layout(
-            title="📊 Market Mood (Fear & Greed) — Last 90 Days",
+            title="Market Mood (Fear & Greed) — Last 90 Days",
             template="plotly_dark",
-            paper_bgcolor="#0a0f1e",
-            plot_bgcolor="#0d1526",
-            height=220,
-            margin=dict(l=40, r=20, t=40, b=40),
-            yaxis=dict(range=[0, 100], gridcolor="rgba(255,255,255,0.05)"),
+            height=230,
+            bargap=0.25,
+            margin=dict(l=40, r=20, t=44, b=40),
+            yaxis=dict(range=[0, 100]),
             xaxis=dict(showgrid=False),
         )
-        st.plotly_chart(mood_fig, use_container_width=True)
+        st.plotly_chart(polish(mood_fig), use_container_width=True)
 
     # Explanation
     d = data.get("explanation_data")
     if d:
-        st.markdown("---")
-
-        st.markdown("### 📈 Trend & Price Structure")
+        st.markdown('<div class="cx-sec">📈 Trend &amp; Price Structure</div>', unsafe_allow_html=True)
         st.markdown(
-            f"{d['name']} is **${d['current_price']:,.2f}**, "
-            f"{d['vs_ma30_label']} its 30-day MA, "
-            f"{d['vs_ma90_label']} its 90-day MA, and "
-            f"{d['vs_ma200_label']} its 200-day MA. "
-            f"Short-term **{d['trend_short']}**, {d['trend_long']}. "
-            f"{d['ma_cross'].capitalize()} structure. {d['bb_text'].capitalize()}."
+            f"""<div class="cx-card">{d['name']} is <b>${d['current_price']:,.2f}</b>,
+            {d['vs_ma30_label']} its 30-day MA,
+            {d['vs_ma90_label']} its 90-day MA, and
+            {d['vs_ma200_label']} its 200-day MA.
+            Short-term <b>{d['trend_short']}</b>, {d['trend_long']}.
+            {d['ma_cross'].capitalize()} structure. {d['bb_text'].capitalize()}.</div>""",
+            unsafe_allow_html=True,
         )
 
-        st.markdown("### ⚡ Momentum Indicators")
+        st.markdown('<div class="cx-sec">⚡ Momentum Indicators</div>', unsafe_allow_html=True)
         def pill(label, color):
-            bg  = {"green": "#16a34a22", "red": "#dc262622", "gray": "#47556922"}[color]
-            bdr = {"green": "#16a34a66", "red": "#dc262666", "gray": "#47556966"}[color]
-            clr = {"green": "#4ade80",   "red": "#f87171",   "gray": "#94a3b8"}[color]
+            bg  = {"green": "#34d39918", "red": "#fb718518", "gray": "#64748b1e"}[color]
+            bdr = {"green": "#34d39955", "red": "#fb718555", "gray": "#64748b55"}[color]
+            clr = {"green": "#34d399",   "red": "#fb7185",   "gray": "#94a3b8"}[color]
             return f'<span style="background:{bg};border:1px solid {bdr};color:{clr};border-radius:999px;padding:2px 10px;font-size:12px;font-weight:600;white-space:nowrap">{label}</span>'
 
         def score_color(score):
@@ -172,7 +339,7 @@ if coin_id in panels and scenario in panels[coin_id]:
         m3.metric("14d Volatility", f"{vol:.1f}%")
         m3.markdown(pill(vol_label, vol_color), unsafe_allow_html=True)
 
-        st.markdown("### 🌐 Sentiment")
+        st.markdown('<div class="cx-sec">🌐 Sentiment</div>', unsafe_allow_html=True)
         s1, s2, s3, s4 = st.columns(4)
         s1.metric("Fear & Greed", f"{d['fng_val']:.0f}")
         s1.markdown(pill(d['fng_cls'], fng_color(d['fng_val'])), unsafe_allow_html=True)
@@ -183,20 +350,25 @@ if coin_id in panels and scenario in panels[coin_id]:
         s4.metric("Composite", f"{d['today_sentiment']:+.3f}")
         s4.markdown(pill("Bullish bias" if d['today_sentiment'] > 0.05 else "Bearish bias" if d['today_sentiment'] < -0.05 else "Neutral", score_color(d['today_sentiment'])), unsafe_allow_html=True)
 
-        st.markdown("### 🔮 Forecast Summary")
-        import pandas as pd
-        rows = []
+        st.markdown('<div class="cx-sec">🔮 Forecast Summary</div>', unsafe_allow_html=True)
+        hz_names = {"7d": "7-Day Target", "30d": "30-Day Target", "90d": "90-Day Target"}
+        cards = ""
         for f in d["forecasts"]:
-            rows.append({
-                "Horizon": f["horizon"],
-                "Target Price": f"${f['target']:,.2f}",
-                "Change": f"{f['change_pct']:+.1f}%",
-                "80% Range": f"${f['lower']:,.0f} – ${f['upper']:,.0f}",
-            })
-        st.dataframe(pd.DataFrame(rows), use_container_width=True, hide_index=True)
+            up = f["change_pct"] >= 0
+            cls = "fc-up" if up else "fc-down"
+            arrow = "▲" if up else "▼"
+            active = " active" if f["horizon"] == horizon else ""
+            cards += f"""
+  <div class="fc-card{active}">
+    <div class="fc-h">{hz_names.get(f["horizon"], f["horizon"])}</div>
+    <div class="fc-t">${f['target']:,.2f}</div>
+    <div class="fc-c {cls}">{arrow} {f['change_pct']:+.1f}%</div>
+    <div class="fc-r">80% range&nbsp; ${f['lower']:,.0f} – ${f['upper']:,.0f}</div>
+  </div>"""
+        st.markdown(f'<div class="fc-grid">{cards}\n</div>', unsafe_allow_html=True)
         st.caption(f"The model projects a **{d['magnitude']} {d['direction']}** trajectory over 90 days under the **{d['scenario_label']}** scenario.")
 
-        st.markdown("### 💡 Why This Scenario?")
+        st.markdown('<div class="cx-sec">💡 Why This Scenario?</div>', unsafe_allow_html=True)
         scenario_text = {
             "bullish": "The **Bullish scenario** amplifies positive sentiment signals and increases Prophet's changepoint flexibility to follow upward momentum. Positive sentiment scores are weighted 1.5×.",
             "bearish": "The **Bearish scenario** amplifies negative signals and anchors the model against upside momentum. Negative sentiment scores are weighted 1.5×.",

@@ -12,7 +12,7 @@ COIN_SHORT      = {"bitcoin": "BTC", "ethereum": "ETH"}
 COIN_SYMBOL     = {"bitcoin": "₿", "ethereum": "Ξ"}
 COIN_GRADIENT   = {"bitcoin": "linear-gradient(135deg,#F7931A,#fbbf24)",
                    "ethereum": "linear-gradient(135deg,#627EEA,#22d3ee)"}
-SCENARIO_LABELS = {"base": "⚪ Base", "bullish": "🟢 Bullish", "bearish": "🔴 Bearish"}
+SCENARIO_LABELS = {"base": "Base", "bullish": "Bullish", "bearish": "Bearish"}
 HORIZON_LABELS  = {"7d": "7 Days", "30d": "30 Days", "90d": "90 Days"}
 
 # ── Global design system ──────────────────────────────────────────────────────
@@ -21,6 +21,12 @@ st.markdown("""
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap');
 
 html, body, [class*="st-"], .stApp { font-family: 'Inter', -apple-system, 'Segoe UI', sans-serif; }
+/* Restore Streamlit's Material icon font (expander arrows, sidebar collapse, etc.) */
+[data-testid="stIconMaterial"], [class*="material-symbols"], .material-symbols-rounded {
+    font-family: 'Material Symbols Rounded' !important;
+    font-weight: normal; font-style: normal; letter-spacing: normal;
+    text-transform: none; white-space: nowrap; word-wrap: normal; direction: ltr;
+}
 
 .stApp {
   background:
@@ -29,7 +35,7 @@ html, body, [class*="st-"], .stApp { font-family: 'Inter', -apple-system, 'Segoe
     radial-gradient(1000px 620px at 50% 112%, rgba(167,139,250,.09), transparent 60%),
     #05070d;
 }
-[data-testid="stHeader"] { background: transparent; }
+[data-testid="stHeader"] { background: rgba(5,7,13,.72); backdrop-filter: blur(10px); }
 .block-container { padding-top: 1.6rem; max-width: 1180px; }
 
 /* ── Hero ── */
@@ -197,7 +203,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-with st.expander("📖 How to Use This Dashboard"):
+with st.expander("How to Use This Dashboard"):
     st.markdown("""
 **What is Cryptocurrency?**
 Digital money that exists only online — no bank or government controls it. **Bitcoin (BTC)** is the most well-known (like digital gold). **Ethereum (ETH)** is the second largest, powering many apps and digital contracts. Prices change constantly based on supply, demand, and public sentiment — just like stocks.
@@ -217,7 +223,7 @@ It tracks the current price of Bitcoin and Ethereum and uses a mathematical mode
 
 **The Three Selectors**
 - **Crypto** — switch between Bitcoin and Ethereum.
-- **Scenario** — ⚪ Base (honest best guess) · 🟢 Bullish (optimistic) · 🔴 Bearish (cautious).
+- **Scenario** — Base (honest best guess) · Bullish (optimistic) · Bearish (cautious).
 - **Horizon** — how far ahead to predict. 7 Days is most reliable; 90 Days is more speculative.
 
 **RSI** measures buying/selling speed. Below 30 = oversold (may bounce). Above 70 = overbought (may pull back).
@@ -261,6 +267,8 @@ if coin_id in panels and scenario in panels[coin_id]:
 """, unsafe_allow_html=True)
 
     fig = data["charts_fig"][horizon]
+    fig.update_layout(title_text=(
+        f"<b>{coin_id.capitalize()}</b>  ·  {scenario.capitalize()} Scenario  —  {hz_label} Forecast"))
     st.plotly_chart(polish(fig), use_container_width=True)
 
     # Fear & Greed bar chart
@@ -293,7 +301,7 @@ if coin_id in panels and scenario in panels[coin_id]:
     # Explanation
     d = data.get("explanation_data")
     if d:
-        st.markdown('<div class="cx-sec">📈 Trend &amp; Price Structure</div>', unsafe_allow_html=True)
+        st.markdown('<div class="cx-sec">Trend &amp; Price Structure</div>', unsafe_allow_html=True)
         st.markdown(
             f"""<div class="cx-card">{d['name']} is <b>${d['current_price']:,.2f}</b>,
             {d['vs_ma30_label']} its 30-day MA,
@@ -304,7 +312,7 @@ if coin_id in panels and scenario in panels[coin_id]:
             unsafe_allow_html=True,
         )
 
-        st.markdown('<div class="cx-sec">⚡ Momentum Indicators</div>', unsafe_allow_html=True)
+        st.markdown('<div class="cx-sec">Momentum Indicators</div>', unsafe_allow_html=True)
         def pill(label, color):
             bg  = {"green": "#34d39918", "red": "#fb718518", "gray": "#64748b1e"}[color]
             bdr = {"green": "#34d39955", "red": "#fb718555", "gray": "#64748b55"}[color]
@@ -339,7 +347,7 @@ if coin_id in panels and scenario in panels[coin_id]:
         m3.metric("14d Volatility", f"{vol:.1f}%")
         m3.markdown(pill(vol_label, vol_color), unsafe_allow_html=True)
 
-        st.markdown('<div class="cx-sec">🌐 Sentiment</div>', unsafe_allow_html=True)
+        st.markdown('<div class="cx-sec">Sentiment</div>', unsafe_allow_html=True)
         s1, s2, s3, s4 = st.columns(4)
         s1.metric("Fear & Greed", f"{d['fng_val']:.0f}")
         s1.markdown(pill(d['fng_cls'], fng_color(d['fng_val'])), unsafe_allow_html=True)
@@ -350,7 +358,7 @@ if coin_id in panels and scenario in panels[coin_id]:
         s4.metric("Composite", f"{d['today_sentiment']:+.3f}")
         s4.markdown(pill("Bullish bias" if d['today_sentiment'] > 0.05 else "Bearish bias" if d['today_sentiment'] < -0.05 else "Neutral", score_color(d['today_sentiment'])), unsafe_allow_html=True)
 
-        st.markdown('<div class="cx-sec">🔮 Forecast Summary</div>', unsafe_allow_html=True)
+        st.markdown('<div class="cx-sec">Forecast Summary</div>', unsafe_allow_html=True)
         hz_names = {"7d": "7-Day Target", "30d": "30-Day Target", "90d": "90-Day Target"}
         cards = ""
         for f in d["forecasts"]:
@@ -366,15 +374,15 @@ if coin_id in panels and scenario in panels[coin_id]:
     <div class="fc-r">80% range&nbsp; ${f['lower']:,.0f} – ${f['upper']:,.0f}</div>
   </div>"""
         st.markdown(f'<div class="fc-grid">{cards}\n</div>', unsafe_allow_html=True)
-        st.caption(f"The model projects a **{d['magnitude']} {d['direction']}** trajectory over 90 days under the **{d['scenario_label']}** scenario.")
+        st.caption(f"The model projects a **{d['magnitude']} {d['direction']}** trajectory over 90 days under the **{scenario.capitalize()}** scenario.")
 
-        st.markdown('<div class="cx-sec">💡 Why This Scenario?</div>', unsafe_allow_html=True)
+        st.markdown('<div class="cx-sec">Why This Scenario?</div>', unsafe_allow_html=True)
         scenario_text = {
             "bullish": "The **Bullish scenario** amplifies positive sentiment signals and increases Prophet's changepoint flexibility to follow upward momentum. Positive sentiment scores are weighted 1.5×.",
             "bearish": "The **Bearish scenario** amplifies negative signals and anchors the model against upside momentum. Negative sentiment scores are weighted 1.5×.",
             "base": "The **Base scenario** is the neutral benchmark — no directional bias, sentiment at face value (1× weight), default Prophet settings. The most statistically honest forecast.",
         }.get(d["scenario"], "")
         st.info(scenario_text)
-        st.warning("⚠️ Crypto markets are highly unpredictable. These forecasts are research tools, not financial advice.")
+        st.warning("Crypto markets are highly unpredictable. These forecasts are research tools, not financial advice.")
 else:
     st.error("No data available for this selection.")

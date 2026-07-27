@@ -153,6 +153,78 @@ div[data-testid="stExpander"] summary { font-weight:600; }
 hr { border-color: rgba(148,163,184,.12) !important; }
 
 div[data-testid="stAlert"] { border-radius: 12px; backdrop-filter: blur(8px); }
+
+/* ═══ Motion layer ═══ */
+@keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+@keyframes sheen  { to { background-position: 200% center; } }
+@keyframes drift  {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%     { transform: translate(-50px,35px) scale(1.07); }
+}
+
+/* Ambient light drift behind content */
+.stApp::before {
+  content:''; position: fixed; inset: -15%;
+  background:
+    radial-gradient(620px 420px at 22% 12%, rgba(99,102,241,.10), transparent 60%),
+    radial-gradient(720px 480px at 78% 18%, rgba(34,211,238,.07), transparent 60%);
+  animation: drift 26s ease-in-out infinite;
+  pointer-events: none; will-change: transform;
+}
+
+/* Entrance animation (plays on mount) */
+[data-testid="stElementContainer"], .element-container { animation: fadeUp .4s ease-out both; }
+[data-testid="stColumn"]:nth-of-type(2) [data-testid="stElementContainer"] { animation-delay: .06s; }
+[data-testid="stColumn"]:nth-of-type(3) [data-testid="stElementContainer"] { animation-delay: .12s; }
+[data-testid="stColumn"]:nth-of-type(4) [data-testid="stElementContainer"] { animation-delay: .18s; }
+
+/* Charts in glass panels with hover glow */
+[data-testid="stPlotlyChart"] {
+  background: rgba(15,23,42,.45); border: 1px solid rgba(148,163,184,.12);
+  border-radius: 16px; padding: .55rem .35rem .15rem; backdrop-filter: blur(10px);
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+[data-testid="stPlotlyChart"]:hover {
+  border-color: rgba(99,102,241,.35);
+  box-shadow: 0 10px 34px rgba(99,102,241,.10);
+}
+
+/* Micro-interactions */
+.stButton > button { transition: border-color .15s ease, box-shadow .15s ease, transform .1s ease; }
+.stButton > button:active { transform: scale(.97); }
+div[data-testid="stMetric"] {
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+div[data-testid="stMetric"]:hover {
+  transform: translateY(-2px); border-color: rgba(99,102,241,.45);
+  box-shadow: 0 12px 30px rgba(2,6,23,.5);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(99,102,241,.35); border-radius: 8px;
+  border: 2px solid transparent; background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background-color: rgba(99,102,241,.6); }
+
+/* Hero title shimmer */
+.cx-hero h1 { background-size: 200% auto; animation: sheen 6s linear infinite; }
+
+/* Coin icon float */
+@keyframes icfloat { 50% { transform: translateY(-3px); } }
+.cx-price .coin-ic { animation: icfloat 4s ease-in-out infinite; }
+
+/* Forecast card hover sheen sweep */
+.fc-card { position: relative; overflow: hidden; }
+.fc-card::after {
+  content:''; position:absolute; top:0; left:-70%; width:45%; height:100%;
+  background: linear-gradient(105deg, transparent, rgba(255,255,255,.05), transparent);
+  transform: skewX(-20deg); transition: left .45s ease;
+}
+.fc-card:hover::after { left: 130%; }
+
 </style>
 """, unsafe_allow_html=True)
 

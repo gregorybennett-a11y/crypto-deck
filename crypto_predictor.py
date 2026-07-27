@@ -593,7 +593,7 @@ def build_chart(
                 y=ma_hist[ma_col].astype(float).tolist(),
                 name=ma_label,
                 mode="lines",
-                line=dict(color="rgba(255,255,255,0.35)", width=1.5, dash="dot"),
+                line=dict(color="rgba(148,163,184,0.5)", width=1.5, dash="dot"),
                 hovertemplate=f"{ma_label}: $%{{y:,.2f}}<extra></extra>",
             ))
 
@@ -615,19 +615,19 @@ def build_chart(
             fig.add_trace(go.Scatter(
                 x=fut_xs + fut_xs[::-1],
                 y=yhat_up + yhat_lo[::-1],
-                fill="toself", fillcolor=hex_to_rgba(c, 0.15),
+                fill="toself", fillcolor=hex_to_rgba(c, 0.12),
                 line=dict(color="rgba(0,0,0,0)"),
                 showlegend=False, hoverinfo="skip",
             ))
             # Upper / lower bound lines (subtle)
             fig.add_trace(go.Scatter(
                 x=fut_xs, y=yhat_up,
-                name="Upper bound", mode="lines",
+                name="Upper bound", mode="lines", showlegend=False,
                 line=dict(color=c, width=1, dash="dot"), opacity=0.5,
             ))
             fig.add_trace(go.Scatter(
                 x=fut_xs, y=yhat_lo,
-                name="Lower bound", mode="lines",
+                name="Lower bound", mode="lines", showlegend=False,
                 line=dict(color=c, width=1, dash="dot"), opacity=0.5,
             ))
             # Forecast line
@@ -644,7 +644,9 @@ def build_chart(
 
     # TODAY line
     fig.add_vline(x=today_str, line_dash="dash",
-                  line_color="rgba(255,255,255,0.3)", line_width=2)
+                  line_color="rgba(148,163,184,0.35)", line_width=1.5,
+                  annotation_text="TODAY", annotation_position="top left",
+                  annotation_font=dict(size=10, color="#94a3b8"))
 
     # Y-axis: fit history + forecast yhat only (no extreme lower bounds in range)
     hist_prices = hist["close"].astype(float).dropna().tolist()
@@ -673,16 +675,17 @@ def build_chart(
                 f"<b>{name}</b>  ·  {sp['label']} ({scenario_badge})"
                 f"  —  {horizon_label} Forecast"
             ),
-            font=dict(size=16, color="#f1f5f9"), x=0.5,
+            font=dict(size=16, color="#f1f5f9"), x=0.02, xanchor="left",
         ),
         height=520,
         autosize=True,
         hovermode="x unified",
-        legend=dict(orientation="h", y=-0.28, x=0, font=dict(size=12), bgcolor="rgba(0,0,0,0)"),
-        margin=dict(l=60, r=20, t=60, b=150),
-        yaxis=dict(title="Price (USD)", tickprefix="$", tickformat=",.0f",
-                   gridcolor="rgba(255,255,255,0.05)", range=y_range),
-        xaxis=dict(showgrid=True, gridcolor="rgba(255,255,255,0.05)", tickangle=-30),
+        legend=dict(orientation="h", y=1.12, x=1, xanchor="right", font=dict(size=11), bgcolor="rgba(0,0,0,0)"),
+        margin=dict(l=60, r=20, t=80, b=40),
+        yaxis=dict(title="Price (USD)", tickprefix="$", tickformat=",.0f", nticks=6,
+                   tickfont=dict(size=11), gridcolor="rgba(148,163,184,0.08)", range=y_range),
+        xaxis=dict(showgrid=True, gridcolor="rgba(148,163,184,0.08)",
+                   tickangle=0, nticks=8, tickfont=dict(size=11)),
     )
     return fig
 

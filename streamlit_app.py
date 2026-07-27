@@ -340,7 +340,7 @@ if coin_id in panels and scenario in panels[coin_id]:
 
     fig = data["charts_fig"][horizon]
     fig.update_layout(title_text=(
-        f"<b>{coin_id.capitalize()}</b>  ·  {scenario.capitalize()} Scenario  —  {hz_label} Forecast"))
+        f"<b>{coin_id.capitalize()}</b>  ·  {scenario.capitalize()} Scenario  —  {hz_label.replace(' Days', '-Day')} Forecast"))
     st.plotly_chart(polish(fig), use_container_width=True)
 
     # Fear & Greed bar chart
